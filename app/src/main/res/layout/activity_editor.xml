@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="@dimen/activity_padding_lr"
+              android:orientation="vertical">
+
+    <!-- Overview category -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Label -->
+        <TextView
+            style="@style/CategoryStyle"
+            android:text="@string/category_overview"/>
+
+        <!-- Input fields -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:orientation="vertical"
+            android:paddingLeft="4dp">
+
+            <!-- Name field -->
+            <EditText
+                android:id="@+id/et_goods_name"
+                style="@style/EditorFieldStyle"
+                android:hint="@string/hint_pet_name"
+                android:inputType="textCapWords"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Category category -->
+    <LinearLayout
+        android:id="@+id/container_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Label -->
+        <TextView
+            style="@style/CategoryStyle"
+            android:text="@string/category_category"/>
+
+        <!-- Input field -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:orientation="vertical">
+
+            <!-- Gender drop-down spinner -->
+            <Spinner
+                android:id="@+id/sn_category"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:paddingRight="16dp"
+                android:spinnerMode="dropdown"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Sale category -->
+    <LinearLayout
+        android:id="@+id/container_sale"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Label -->
+        <TextView
+            style="@style/CategoryStyle"
+            android:text="@string/category_sale"/>
+
+        <!-- Sale field -->
+        <EditText
+            android:id="@+id/et_sale"
+            style="@style/EditorFieldStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:hint="@string/hint_goods_sale"
+            android:inputType="number"
+            android:paddingLeft="4dp"/>
+    </LinearLayout>
+
+    <!-- Stock category -->
+    <LinearLayout
+        android:id="@+id/container_stock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Label -->
+        <TextView
+            style="@style/CategoryStyle"
+            android:text="@string/category_stock"/>
+
+        <!-- Stock field -->
+        <EditText
+            android:id="@+id/et_stock"
+            style="@style/EditorFieldStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:hint="@string/hint_goods_stock"
+            android:inputType="number"
+            android:paddingLeft="4dp"/>
+    </LinearLayout>
+
+    <!-- Supply category -->
+    <LinearLayout
+        android:id="@+id/container_picture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Label -->
+        <TextView
+            style="@style/CategoryStyle"
+            android:text="@string/category_supply"/>
+
+        <!-- Supply field -->
+        <EditText
+            android:id="@+id/et_supply"
+            style="@style/EditorFieldStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:hint="@string/hint_goods_supply"
+            android:inputType="number"
+            android:paddingLeft="4dp"/>
+    </LinearLayout>
+
+    <!-- Icon category -->
+    <LinearLayout
+        android:id="@+id/container_icon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Label -->
+        <TextView
+            style="@style/CategoryStyle"
+            android:text="@string/category_icon"/>
+
+        <!-- Supply field -->
+        <ImageButton
+            android:id="@+id/ib_icon"
+            style="@style/EditorFieldStyle"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="144dp"
+            android:background="@null"
+            android:src="@mipmap/ic_add_a_photo"
+            android:scaleType="fitCenter"
+            android:paddingLeft="4dp"/>
+    </LinearLayout>
+</LinearLayout>

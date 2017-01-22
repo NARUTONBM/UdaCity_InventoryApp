@@ -1,4 +1,4 @@
-package com.naruto.udacity_inventoryapp;
+package com.naruto.udacity_inventory;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

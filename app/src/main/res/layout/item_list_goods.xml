@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:gravity="center_vertical"
+              android:orientation="horizontal"
+              android:paddingBottom="@dimen/activity_padding_tb"
+              android:paddingLeft="@dimen/activity_padding_lr"
+              android:paddingRight="@dimen/activity_padding_lr"
+              android:paddingTop="@dimen/activity_padding_tb">
+
+    <ImageView
+        android:id="@+id/iv_goods_icon"
+        android:layout_width="@dimen/image_goods_icon_size"
+        android:layout_height="@dimen/image_goods_icon_size"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_broken_image"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/view_padding">
+
+        <TextView
+            android:id="@+id/tv_goods_name"
+            style="@style/TextAppearance.AppCompat.Headline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="zheshibiaoti"/>
+
+        <TextView
+            android:id="@+id/tv_goods_quantity"
+            style="@style/Base.TextAppearance.AppCompat.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="in stock:8"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_goods_price"
+        style="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/view_padding"
+        android:text="$3.5"/>
+
+    <TextView
+        android:id="@+id/tv_goods_supplier"
+        style="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/view_padding"
+        android:text="unknown"/>
+</LinearLayout>

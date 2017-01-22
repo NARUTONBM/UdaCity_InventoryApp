@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- These are the options displayed in the gender drop-down Spinner -->
+    <string-array name="array_gender_options">
+        <item>@string/category_arts_crafts_sewing</item>
+        <item>@string/category_automotive_parts_accessories</item>
+        <item>@string/category_baby</item>
+        <item>@string/category_beauty_personal_care</item>
+        <item>@string/category_books</item>
+        <item>@string/category_cds_vinyl</item>
+        <item>@string/category_cell_phone_accessories</item>
+        <item>@string/category_clothing_shoes_jewelry</item>
+        <item>@string/category_collectibles_fine_art</item>
+        <item>@string/category_computers</item>
+        <item>@string/category_courses</item>
+        <item>@string/category_credit_payment_cards</item>
+        <item>@string/category_digital_music</item>
+        <item>@string/category_electronics</item>
+        <item>@string/category_gift_cards</item>
+        <item>@string/category_other</item>
+    </string-array>
+</resources>

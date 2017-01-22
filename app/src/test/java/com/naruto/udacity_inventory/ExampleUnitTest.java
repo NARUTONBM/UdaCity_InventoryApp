@@ -1,4 +1,4 @@
-package com.naruto.udacity_inventoryapp;
+package com.naruto.udacity_inventory;
 
 import org.junit.Test;
 
