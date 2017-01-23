@@ -10,7 +10,7 @@
               android:paddingTop="@dimen/activity_padding_tb">
 
     <ImageView
-        android:id="@+id/iv_goods_icon"
+        android:id="@+id/ib_goods_icon"
         android:layout_width="@dimen/image_goods_icon_size"
         android:layout_height="@dimen/image_goods_icon_size"
         android:scaleType="centerCrop"

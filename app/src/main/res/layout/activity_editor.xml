@@ -54,7 +54,7 @@
 
             <!-- Gender drop-down spinner -->
             <Spinner
-                android:id="@+id/sn_category"
+                android:id="@+id/sn_goods_category"
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:paddingRight="16dp"
@@ -76,7 +76,7 @@
 
         <!-- Sale field -->
         <EditText
-            android:id="@+id/et_sale"
+            android:id="@+id/et_goods_price"
             style="@style/EditorFieldStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -100,7 +100,7 @@
 
         <!-- Stock field -->
         <EditText
-            android:id="@+id/et_stock"
+            android:id="@+id/et_goods_quantity"
             style="@style/EditorFieldStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -124,7 +124,7 @@
 
         <!-- Supply field -->
         <EditText
-            android:id="@+id/et_supply"
+            android:id="@+id/et_goods_supplier"
             style="@style/EditorFieldStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -148,12 +148,13 @@
 
         <!-- Supply field -->
         <ImageButton
-            android:id="@+id/ib_icon"
+            android:id="@+id/ib_goods_icon"
             style="@style/EditorFieldStyle"
             android:layout_width="0dp"
             android:layout_weight="2"
             android:layout_height="144dp"
             android:background="@null"
+            android:onClick="AddPhoto"
             android:src="@mipmap/ic_add_a_photo"
             android:scaleType="fitCenter"
             android:paddingLeft="4dp"/>

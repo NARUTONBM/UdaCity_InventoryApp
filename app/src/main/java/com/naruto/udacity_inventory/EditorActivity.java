@@ -7,7 +7,16 @@ package com.naruto.udacity_inventory;
  * Desc: UdaCity_InventoryApp
  */
 
+import android.app.LoaderManager;
+import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NavUtils;
@@ -16,43 +25,82 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.naruto.udacity_inventory.data.GoodsContract.GoodsEntry;
+import com.naruto.udacity_inventory.utils.DbBitmapUtil;
 
-public class EditorActivity extends AppCompatActivity {
+public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
-	private EditText et_goods_name, et_sale, et_stock, et_supply;
-	private Spinner sn_category;
-	private ImageButton ib_icon;
+	private static final int EXISTING_GOODS_LOADER = 1;
+	private static final int SELECT_PIC = 10;
+	private EditText et_goods_name, et_goods_price, et_goods_quantity, et_goods_supplier;
+	private Spinner sn_goods_category;
+	private ImageButton ib_goods_icon;
 	private int mCategory = GoodsEntry.CATEGORY_OTHER;
+	private boolean mGoodsHasChanged = false;
+	private Uri mCurrentGoodsUri;
+
+	private View.OnTouchListener mListener = new View.OnTouchListener() {
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			mGoodsHasChanged = true;
+			return false;
+		}
+	};
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_editor);
 
+		initData();
 		initUI();
+	}
+
+	private void initData() {
+		mCurrentGoodsUri = getIntent().getData();
 	}
 
 	private void initUI() {
 		// 设置页面标题
-		setTitle(R.string.editor_activity_title_new_goods);
+		if (mCurrentGoodsUri == null) {
+			setTitle(R.string.editor_activity_title_new_goods);
+			invalidateOptionsMenu();
+		} else {
+			setTitle(R.string.editor_activity_title_edit_goods);
+			getLoaderManager().initLoader(EXISTING_GOODS_LOADER, null, this);
+		}
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		// 找到控件
+		// 找到控件,并设置相应点击事件
 		et_goods_name = (EditText) findViewById(R.id.et_goods_name);
-		sn_category = (Spinner) findViewById(R.id.sn_category);
-		et_sale = (EditText) findViewById(R.id.et_sale);
-		et_stock = (EditText) findViewById(R.id.et_stock);
-		et_supply = (EditText) findViewById(R.id.et_supply);
-		ib_icon = (ImageButton) findViewById(R.id.ib_icon);
+		et_goods_name.setOnTouchListener(mListener);
+		sn_goods_category = (Spinner) findViewById(R.id.sn_goods_category);
+		sn_goods_category.setOnTouchListener(mListener);
+		et_goods_price = (EditText) findViewById(R.id.et_goods_price);
+		et_goods_price.setOnTouchListener(mListener);
+		et_goods_quantity = (EditText) findViewById(R.id.et_goods_quantity);
+		et_goods_quantity.setOnTouchListener(mListener);
+		et_goods_supplier = (EditText) findViewById(R.id.et_goods_supplier);
+		et_goods_supplier.setOnTouchListener(mListener);
+		ib_goods_icon = (ImageButton) findViewById(R.id.ib_goods_icon);
+		ib_goods_icon.setOnTouchListener(mListener);
 		// 设置下拉选择
 		setupSpinner();
+	}
+
+	public void AddPhoto(View view) {
+		Intent intent = new Intent();
+		intent.setType("image/*");
+		intent.setAction(Intent.ACTION_GET_CONTENT);
+		startActivityForResult(Intent.createChooser(intent, "Select a picture"), SELECT_PIC);
 	}
 
 	/**
@@ -66,10 +114,10 @@ public class EditorActivity extends AppCompatActivity {
 		genderSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
 
 		// 配置适配器
-		sn_category.setAdapter(genderSpinnerAdapter);
+		sn_goods_category.setAdapter(genderSpinnerAdapter);
 
-		// 设置选择的条目与对应的
-		sn_category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+		// 设置选择的条目与对应的内容
+		sn_goods_category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				String selection = (String) parent.getItemAtPosition(position);
@@ -110,8 +158,6 @@ public class EditorActivity extends AppCompatActivity {
 				}
 			}
 
-			// Because AdapterView is an abstract class, onNothingSelected must
-			// be defined
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
 				mCategory = GoodsEntry.CATEGORY_OTHER;
@@ -121,43 +167,48 @@ public class EditorActivity extends AppCompatActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu options from the res/menu/menu_editor.xml file.
-		// This adds menu items to the app bar.
+		// 在appbar添加按钮
 		getMenuInflater().inflate(R.menu.menu_editor, menu);
 		return true;
 	}
 
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		// 如果是一个新的货物，隐藏删除按钮
+		if (mCurrentGoodsUri == null) {
+			MenuItem menuItem = menu.findItem(R.id.action_delete);
+			menuItem.setVisible(false);
+		}
+
+		return true;
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// User clicked on a menu option in the app bar overflow menu
+		// 用户点击了一个appbar上的按钮
 		switch (item.getItemId()) {
-		// Respond to a click on the "Save" menu option
+		// 点击了保存按钮的反馈
 		case R.id.action_save:
-			// Save pet to database
-			// saveGoods();
-			// Exit activity
+			// 保存货物信息到数据库
+			saveGoods();
+			// 退出当前activity
 			finish();
 			return true;
-		// Respond to a click on the "Delete" menu option
+		// 点击了删除按钮的反馈
 		case R.id.action_delete:
-			// Pop up confirmation dialog for deletion
+			// 弹出对话框提醒用户删除
 			showDeleteConfirmationDialog();
 			return true;
-		// Respond to a click on the "Up" arrow button in the app bar
+		// 点击appbar上的返回按钮的操作
 		case android.R.id.home:
-			// If the pet hasn't changed, continue with navigating up to parent
-			// activity
-			// which is the {@link CatalogActivity}.
-			/*
-			 * if (!mGoodsHasChanged) {
-			 * NavUtils.navigateUpFromSameTask(EditorActivity.this); return
-			 * true; }
-			 */
+			// 如果货物信息没有被更改，继续处理返回父activity的操作
+			if (!mGoodsHasChanged) {
+				NavUtils.navigateUpFromSameTask(EditorActivity.this);
+				return true;
+			}
 
-			// Otherwise if there are unsaved changes, setup a dialog to warn
-			// the user.
-			// Create a click listener to handle the user confirming that
-			// changes should be discarded.
+			// 提示用户，一旦退出，当前的更改不会被保存
 			DialogInterface.OnClickListener discardButtonClickListener = new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialogInterface, int i) {
@@ -167,7 +218,7 @@ public class EditorActivity extends AppCompatActivity {
 				}
 			};
 
-			// Show a dialog that notifies the user they have unsaved changes
+			// 弹出对话框，还有未保存的更改
 			showUnsavedChangesDialog(discardButtonClickListener);
 
 			return true;
@@ -176,91 +227,267 @@ public class EditorActivity extends AppCompatActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	private void saveGoods() {
+		// 获取输入的字符
+		String name = et_goods_name.getText().toString().trim();
+		String category = sn_goods_category.getSelectedItem().toString().trim();
+		String price = et_goods_price.getText().toString().trim();
+		String quantity = et_goods_quantity.getText().toString().trim();
+		String supplier = et_goods_supplier.getText().toString().trim();
+		Bitmap icon = ((BitmapDrawable) ib_goods_icon.getDrawable()).getBitmap();
+		// 对输入的内容进行非空校验
+		if (mCurrentGoodsUri == null || name.isEmpty() || category.isEmpty() || price.isEmpty() || quantity.isEmpty() || supplier.isEmpty()) {
+			return;
+		}
+		// 创建一个ContentValues对象
+		ContentValues values = new ContentValues();
+		values.put(GoodsEntry.COLUMN_GOODS_NAME, name);
+		values.put(GoodsEntry.COLUMN_GOODS_CATEGORY, category);
+		values.put(GoodsEntry.COLUMN_GOODS_PRICE, price);
+		values.put(GoodsEntry.COLUMN_GOODS_QUANTITY, quantity);
+		values.put(GoodsEntry.COLUMN_GOODS_SUPPLIER, supplier);
+		values.put(GoodsEntry.COLUMN_GOODS_ICON, DbBitmapUtil.getBytes(icon));
+
+		if (mCurrentGoodsUri == null) {
+			Uri newUri = getContentResolver().insert(GoodsEntry.CONTENT_URI, values);
+			if (newUri == null) {
+				Toast.makeText(this, R.string.editor_insert_fail, Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(this, R.string.editor_insert_success, Toast.LENGTH_SHORT).show();
+			}
+		} else {
+			int rowUpdated = getContentResolver().update(mCurrentGoodsUri, values, null, null);
+			if (rowUpdated == 0) {
+				Toast.makeText(this, R.string.editor_update_fail, Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(this, R.string.editor_update_success, Toast.LENGTH_SHORT).show();
+			}
+		}
+	}
+
 	/**
-	 * This method is called when the back button is pressed.
+	 * 当返回键被按钮时调用
 	 */
 	@Override
 	public void onBackPressed() {
-		// If the pet hasn't changed, continue with handling back button press
-		/*
-		 * if (!mGoodsHasChanged) { super.onBackPressed();
-		 * 
-		 * return; }
-		 */
+		// 如果货物信息没有被更改，继续处理返回键的操作
+		if (!mGoodsHasChanged) {
+			super.onBackPressed();
+			return;
+		}
 
-		// Otherwise if there are unsaved changes, setup a dialog to warn the
-		// user.
-		// Create a click listener to handle the user confirming that changes
-		// should be discarded.
+		// 提示用户，一旦退出，当前的更改不会被保存
 		DialogInterface.OnClickListener discardButtonClickListener = new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialogInterface, int i) {
-				// User clicked "Discard" button, close the current activity.
+				// 点击了放弃按钮，关闭当前activity
 				finish();
 			}
 		};
 
-		// Show dialog that there are unsaved changes
+		// 弹出对话框，还有未保存的更改
 		showUnsavedChangesDialog(discardButtonClickListener);
 	}
 
 	/**
-	 * Show a dialog that warns the user there are unsaved changes that will be
-	 * lost if they continue leaving the editor.
+	 * 弹出对话框，退出时提醒用户还有未保存的更改
 	 *
 	 * @param discardButtonClickListener
-	 *            is the click listener for what to do when the user confirms
-	 *            they want to discard their changes
+	 *            用户需要取消更改时的监听器
 	 */
 	private void showUnsavedChangesDialog(DialogInterface.OnClickListener discardButtonClickListener) {
-		// Create an AlertDialog.Builder and set the message, and click
-		// listeners
-		// for the postivie and negative buttons on the dialog.
+		// 创建一个AlertDialog对象，并设置标题信息，以及按钮的点击事件
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(R.string.unsaved_changes_dialog_msg);
 		builder.setPositiveButton(R.string.discard, discardButtonClickListener);
 		builder.setNegativeButton(R.string.keep_editing, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
-				// User clicked the "Keep editing" button, so dismiss the dialog
-				// and continue editing the pet.
+				// 点击了继续编辑按钮，关闭对话框，继续编辑
 				if (dialog != null) {
 					dialog.dismiss();
 				}
 			}
 		});
 
-		// Create and show the AlertDialog
+		// 创建并展示对话框
 		AlertDialog alertDialog = builder.create();
 		alertDialog.show();
 	}
 
 	/**
-	 * Prompt the user to confirm that they want to delete this pet.
+	 * 弹出对话框，提醒用户是否确认要删除当前货物信息
 	 */
 	private void showDeleteConfirmationDialog() {
-		// Create an AlertDialog.Builder and set the message, and click
-		// listeners
-		// for the postivie and negative buttons on the dialog.
+		// 创建一个AlertDialog对象，并设置标题信息，以及按钮的点击事件
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(R.string.delete_dialog_msg);
 		builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
-				// User clicked the "Delete" button, so delete the pet.
-				// deleteGoods();
+				// 点击了删除按钮，删除当前货物信息
+				deleteGoods();
 			}
 		});
 		builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int id) {
-				// User clicked the "Cancel" button, so dismiss the dialog
-				// and continue editing the pet.
+				// 点击了取消按钮，关闭对话框，继续编辑
 				if (dialog != null) {
 					dialog.dismiss();
 				}
 			}
 		});
 
-		// Create and show the AlertDialog
+		// 创建并展示对话框
 		AlertDialog alertDialog = builder.create();
 		alertDialog.show();
+	}
+
+	private void deleteGoods() {
+		if (mCurrentGoodsUri != null) {
+			// uri不为空，根据uri删除内容
+			int rowDeleted = getContentResolver().delete(mCurrentGoodsUri, null, null);
+			// 判断返回的被删除行号是否为0，为0--删除失败，不为0--删除成功
+			if (rowDeleted == 0) {
+				Toast.makeText(this, "Delete goods failed", Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(this, "Delete goods successfully", Toast.LENGTH_SHORT).show();
+			}
+		}
+
+		// 关闭当前activity
+		finish();
+	}
+
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		String[] projection = {GoodsEntry._ID, GoodsEntry.COLUMN_GOODS_NAME, GoodsEntry.COLUMN_GOODS_CATEGORY, GoodsEntry.COLUMN_GOODS_PRICE,
+						GoodsEntry.COLUMN_GOODS_QUANTITY, GoodsEntry.COLUMN_GOODS_SUPPLIER, GoodsEntry.COLUMN_GOODS_ICON};
+
+		return new CursorLoader(this, mCurrentGoodsUri, projection, null, null, null);
+	}
+
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		// cursor为空或者curso少于一行，直接退出当前方法
+		if (cursor == null || cursor.getCount() < 1) {
+			return;
+		}
+
+		if (cursor.moveToFirst()) {
+			// 找到列的索引
+			int nameColumnIndex = cursor.getColumnIndex(GoodsEntry.COLUMN_GOODS_NAME);
+			int categoryColumnIndex = cursor.getColumnIndex(GoodsEntry.COLUMN_GOODS_CATEGORY);
+			int priceColumnIndex = cursor.getColumnIndex(GoodsEntry.COLUMN_GOODS_PRICE);
+			int quantityColumnIndex = cursor.getColumnIndex(GoodsEntry.COLUMN_GOODS_QUANTITY);
+			int supplierColumnIndex = cursor.getColumnIndex(GoodsEntry.COLUMN_GOODS_SUPPLIER);
+			int iconColumnIndex = cursor.getColumnIndex(GoodsEntry.COLUMN_GOODS_ICON);
+
+			// 取出列中的值
+			String name = cursor.getString(nameColumnIndex);
+			int category = cursor.getInt(categoryColumnIndex);
+			double price = cursor.getDouble(priceColumnIndex);
+			int quantity = cursor.getInt(quantityColumnIndex);
+			String supplier = cursor.getString(supplierColumnIndex);
+			byte[] icon = cursor.getBlob(iconColumnIndex);
+
+			// 将去除的内容展示到控件上
+			et_goods_name.setText(name);
+			et_goods_price.setText(String.format("$ %s", price));
+			et_goods_quantity.setText(quantity);
+			et_goods_supplier.setText(supplier);
+			ib_goods_icon.setImageBitmap(DbBitmapUtil.getImage(icon));
+
+			// 设置下拉选择框的显示内容
+			switch (category) {
+			case GoodsEntry.CATEGORY_ARTS_CRAFTS_SEWING:
+				sn_goods_category.setSelection(0);
+
+				break;
+
+			case GoodsEntry.CATEGORY_AUTOMOTIVE_PARTS_ACCESSORIES:
+				sn_goods_category.setSelection(1);
+
+				break;
+
+			case GoodsEntry.CATEGORY_BABY:
+				sn_goods_category.setSelection(2);
+
+				break;
+
+			case GoodsEntry.CATEGORY_BEAUTY_PERSONAL_CARE:
+				sn_goods_category.setSelection(3);
+
+				break;
+
+			case GoodsEntry.CATEGORY_BOOKS:
+				sn_goods_category.setSelection(4);
+
+				break;
+
+			case GoodsEntry.CATEGORY_CDS_VINYL:
+				sn_goods_category.setSelection(5);
+
+				break;
+
+			case GoodsEntry.CATEGORY_CELL_PHONE_ACCESSORIES:
+				sn_goods_category.setSelection(6);
+
+				break;
+
+			case GoodsEntry.CATEGORY_CLOTHING_SHOES_JEWELRY:
+				sn_goods_category.setSelection(7);
+
+				break;
+
+			case GoodsEntry.CATEGORY_COLLECTIBLES_FINE_ART:
+				sn_goods_category.setSelection(8);
+
+				break;
+
+			case GoodsEntry.CATEGORY_COMPUTERS:
+				sn_goods_category.setSelection(9);
+
+				break;
+
+			case GoodsEntry.CATEGORY_COURSES:
+				sn_goods_category.setSelection(10);
+
+				break;
+
+			case GoodsEntry.CATEGORY_CREDIT_PAYMENT_CARDS:
+				sn_goods_category.setSelection(11);
+
+				break;
+
+			case GoodsEntry.CATEGORY_DIGITAL_MUSIC:
+				sn_goods_category.setSelection(12);
+
+				break;
+
+			case GoodsEntry.CATEGORY_ELECTRONICS:
+				sn_goods_category.setSelection(13);
+
+				break;
+
+			case GoodsEntry.CATEGORY_GIFT_CARDS:
+				sn_goods_category.setSelection(14);
+
+				break;
+
+			default:
+				sn_goods_category.setSelection(15);
+
+				break;
+			}
+		}
+	}
+
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+		et_goods_name.setText("");
+		sn_goods_category.setSelection(15);
+		et_goods_price.setText("");
+		et_goods_quantity.setText("");
+		et_goods_supplier.setText("");
+		ib_goods_icon.setImageResource(R.mipmap.ic_add_a_photo);
 	}
 }

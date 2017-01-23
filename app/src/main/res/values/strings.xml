@@ -42,4 +42,8 @@
     <string name="category_electronics">Electronics</string>
     <string name="category_gift_cards">Gift Cards</string>
     <string name="category_other">Other</string>
+    <string name="editor_insert_fail">Insert new goods failed</string>
+    <string name="editor_insert_success">Insert new goods successfully</string>
+    <string name="editor_update_fail">Update goods failed</string>
+    <string name="editor_update_success">Update goods successfully</string>
 </resources>

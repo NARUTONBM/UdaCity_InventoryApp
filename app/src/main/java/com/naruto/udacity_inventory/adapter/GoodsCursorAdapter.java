@@ -1,4 +1,4 @@
-package com.naruto.udacity_inventory;
+package com.naruto.udacity_inventory.adapter;
 
 /*
  * Created with Android Studio.
@@ -17,7 +17,9 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.naruto.udacity_inventory.R;
 import com.naruto.udacity_inventory.data.GoodsContract.GoodsEntry;
+import com.naruto.udacity_inventory.utils.DbBitmapUtil;
 
 public class GoodsCursorAdapter extends CursorAdapter {
 
@@ -63,7 +65,7 @@ public class GoodsCursorAdapter extends CursorAdapter {
 	@Override
 	public void bindView(View view, Context context, Cursor cursor) {
 		// 找到控件
-		ImageView iv_goods_icon = (ImageView) view.findViewById(R.id.iv_goods_icon);
+		ImageView iv_goods_icon = (ImageView) view.findViewById(R.id.ib_goods_icon);
 		TextView tv_goods_name = (TextView) view.findViewById(R.id.tv_goods_name);
 		TextView tv_goods_quantity = (TextView) view.findViewById(R.id.tv_goods_quantity);
 		TextView tv_goods_price = (TextView) view.findViewById(R.id.tv_goods_price);
@@ -75,6 +77,7 @@ public class GoodsCursorAdapter extends CursorAdapter {
 		int priceIndex = cursor.getColumnIndex(GoodsEntry.COLUMN_GOODS_PRICE);
 		int supplierIndex = cursor.getColumnIndex(GoodsEntry.COLUMN_GOODS_SUPPLIER);
 		// 根据索引拿到相应的数据,并设置给相应的控件
+		iv_goods_icon.setImageBitmap(DbBitmapUtil.getImage(cursor.getBlob(iconIndex)));
 		tv_goods_name.setText(cursor.getString(nameIndex));
 		tv_goods_quantity.setText(cursor.getString(quantityIndex));
 		tv_goods_price.setText(cursor.getString(priceIndex));
