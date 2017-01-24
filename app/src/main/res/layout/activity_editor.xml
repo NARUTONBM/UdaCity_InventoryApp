@@ -130,7 +130,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:hint="@string/hint_goods_supply"
-            android:inputType="number"
+            android:inputType="text"
             android:paddingLeft="4dp"/>
     </LinearLayout>
 

@@ -39,7 +39,7 @@ public class GoodsDbHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		// 创建sql语句
-		String SQL_CREATE_GOODS_TABLE = "CREATE TABLE " + GoodsContract.GoodsEntry.TABLE_NAME + "(" + GoodsEntry._ID
+		String SQL_CREATE_GOODS_TABLE = "CREATE TABLE " + GoodsEntry.TABLE_NAME + "(" + GoodsEntry._ID
 						+ " INTEGER PRIMARY KEY AUTOINCREMENT, " + GoodsEntry.COLUMN_GOODS_NAME + " TEXT NOT NULL, "
 						+ GoodsEntry.COLUMN_GOODS_CATEGORY + " INTEGER NOT NULL, " + GoodsEntry.COLUMN_GOODS_PRICE + " DOUBLE NOT NULL, "
 						+ GoodsEntry.COLUMN_GOODS_QUANTITY + " INTEGER NOT NULL, " + GoodsEntry.COLUMN_GOODS_SUPPLIER + " TEXT NOT NULL, "

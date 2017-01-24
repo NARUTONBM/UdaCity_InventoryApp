@@ -79,8 +79,13 @@ public class GoodsCursorAdapter extends CursorAdapter {
 		// 根据索引拿到相应的数据,并设置给相应的控件
 		iv_goods_icon.setImageBitmap(DbBitmapUtil.getImage(cursor.getBlob(iconIndex)));
 		tv_goods_name.setText(cursor.getString(nameIndex));
-		tv_goods_quantity.setText(cursor.getString(quantityIndex));
-		tv_goods_price.setText(cursor.getString(priceIndex));
-		tv_goods_supplier.setText(cursor.getString(supplierIndex));
+		int quantity = cursor.getInt(quantityIndex);
+		if (quantity > 0) {
+			tv_goods_quantity.setText("in stock: " + quantity);
+		} else {
+			tv_goods_quantity.setText("out stock");
+		}
+		tv_goods_price.setText("$" + cursor.getDouble(priceIndex));
+		tv_goods_supplier.setText("Supplied by " + cursor.getString(supplierIndex));
 	}
 }

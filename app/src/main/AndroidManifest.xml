@@ -17,6 +17,10 @@
         </activity>
         <activity android:name="com.naruto.udacity_inventory.EditorActivity"
                   android:parentActivityName="com.naruto.udacity_inventory.CatalogActivity"/>
+        <provider
+            android:name=".data.GoodsProvider"
+            android:authorities="com.naruto.udacity_inventory"
+            android:exported="false"/>
     </application>
 
 </manifest>

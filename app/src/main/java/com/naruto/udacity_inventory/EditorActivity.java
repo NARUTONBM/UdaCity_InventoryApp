@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -37,6 +39,8 @@ import android.widget.Toast;
 import com.naruto.udacity_inventory.data.GoodsContract.GoodsEntry;
 import com.naruto.udacity_inventory.utils.DbBitmapUtil;
 
+import java.io.FileNotFoundException;
+
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
 	private static final int EXISTING_GOODS_LOADER = 1;
@@ -47,6 +51,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 	private int mCategory = GoodsEntry.CATEGORY_OTHER;
 	private boolean mGoodsHasChanged = false;
 	private Uri mCurrentGoodsUri;
+	private static final String EDITOR_TAG = EditorActivity.class.getSimpleName();
 
 	private View.OnTouchListener mListener = new View.OnTouchListener() {
 		@Override
@@ -236,7 +241,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 		String supplier = et_goods_supplier.getText().toString().trim();
 		Bitmap icon = ((BitmapDrawable) ib_goods_icon.getDrawable()).getBitmap();
 		// 对输入的内容进行非空校验
-		if (mCurrentGoodsUri == null || name.isEmpty() || category.isEmpty() || price.isEmpty() || quantity.isEmpty() || supplier.isEmpty()) {
+		if (mCurrentGoodsUri == null && name.isEmpty() && category.isEmpty() && price.isEmpty() && quantity.isEmpty() && supplier.isEmpty()) {
 			return;
 		}
 		// 创建一个ContentValues对象
@@ -392,7 +397,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 			// 将去除的内容展示到控件上
 			et_goods_name.setText(name);
 			et_goods_price.setText(String.format("$ %s", price));
-			et_goods_quantity.setText(quantity);
+			et_goods_quantity.setText(" " + quantity);
 			et_goods_supplier.setText(supplier);
 			ib_goods_icon.setImageBitmap(DbBitmapUtil.getImage(icon));
 
@@ -489,5 +494,43 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 		et_goods_quantity.setText("");
 		et_goods_supplier.setText("");
 		ib_goods_icon.setImageResource(R.mipmap.ic_add_a_photo);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == SELECT_PIC) {
+			Uri uri;
+			if (data != null) {
+				uri = data.getData();
+				try {
+					ib_goods_icon.setImageBitmap(decodeUri(uri));
+				} catch (FileNotFoundException e) {
+					Log.e(EDITOR_TAG, "FileNotFound" + e);
+				}
+			}
+		}
+	}
+
+	private Bitmap decodeUri(Uri uri) throws FileNotFoundException {
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri), null, options);
+		final int REQUIRED_SIZE = 144;
+		int outWidth = options.outWidth;
+		int outHeight = options.outHeight;
+		int scale = 1;
+		while (true) {
+			if (outWidth / 2 < REQUIRED_SIZE || outHeight / 2 < REQUIRED_SIZE) {
+				break;
+			}
+			outWidth /= 2;
+			outHeight /= 2;
+			scale *= 2;
+		}
+		BitmapFactory.Options options1 = new BitmapFactory.Options();
+		options1.inSampleSize = scale;
+
+		return BitmapFactory.decodeStream(getContentResolver().openInputStream(uri), null, options1);
 	}
 }
