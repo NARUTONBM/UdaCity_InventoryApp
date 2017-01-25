@@ -45,6 +45,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
 	private static final int EXISTING_GOODS_LOADER = 1;
 	private static final int SELECT_PIC = 10;
+	private static boolean NONE_SELECT = true;
 	private EditText et_goods_name, et_goods_price, et_goods_quantity, et_goods_supplier;
 	private Spinner sn_goods_category;
 	private ImageButton ib_goods_icon;
@@ -239,7 +240,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 		String price = et_goods_price.getText().toString().trim();
 		String quantity = et_goods_quantity.getText().toString().trim();
 		String supplier = et_goods_supplier.getText().toString().trim();
-		Bitmap icon = ((BitmapDrawable) ib_goods_icon.getDrawable()).getBitmap();
+		Bitmap icon = (((BitmapDrawable) ib_goods_icon.getDrawable()).getBitmap());
 		// 对输入的内容进行非空校验
 		if (mCurrentGoodsUri == null && name.isEmpty() && category.isEmpty() && price.isEmpty() && quantity.isEmpty() && supplier.isEmpty()) {
 			return;
@@ -251,7 +252,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 		values.put(GoodsEntry.COLUMN_GOODS_PRICE, price);
 		values.put(GoodsEntry.COLUMN_GOODS_QUANTITY, quantity);
 		values.put(GoodsEntry.COLUMN_GOODS_SUPPLIER, supplier);
-		values.put(GoodsEntry.COLUMN_GOODS_ICON, DbBitmapUtil.getBytes(icon));
+		if (NONE_SELECT) {
+			values.put(GoodsEntry.COLUMN_GOODS_ICON,
+							DbBitmapUtil.getBytes(((BitmapDrawable) getResources().getDrawable(R.mipmap.ic_broken_image)).getBitmap()));
+		} else {
+			values.put(GoodsEntry.COLUMN_GOODS_ICON, DbBitmapUtil.getBytes(icon));
+		}
 
 		if (mCurrentGoodsUri == null) {
 			Uri newUri = getContentResolver().insert(GoodsEntry.CONTENT_URI, values);
@@ -502,12 +508,15 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 		if (requestCode == SELECT_PIC) {
 			Uri uri;
 			if (data != null) {
+				NONE_SELECT = false;
 				uri = data.getData();
 				try {
 					ib_goods_icon.setImageBitmap(decodeUri(uri));
 				} catch (FileNotFoundException e) {
 					Log.e(EDITOR_TAG, "FileNotFound" + e);
 				}
+			} else {
+				NONE_SELECT = true;
 			}
 		}
 	}

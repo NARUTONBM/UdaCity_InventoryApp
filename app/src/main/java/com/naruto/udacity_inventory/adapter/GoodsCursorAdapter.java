@@ -10,6 +10,7 @@ package com.naruto.udacity_inventory.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,15 +78,21 @@ public class GoodsCursorAdapter extends CursorAdapter {
 		int priceIndex = cursor.getColumnIndex(GoodsEntry.COLUMN_GOODS_PRICE);
 		int supplierIndex = cursor.getColumnIndex(GoodsEntry.COLUMN_GOODS_SUPPLIER);
 		// 根据索引拿到相应的数据,并设置给相应的控件
-		iv_goods_icon.setImageBitmap(DbBitmapUtil.getImage(cursor.getBlob(iconIndex)));
+		// 设置图标
+		Bitmap image = DbBitmapUtil.getImage(cursor.getBlob(iconIndex));
+		iv_goods_icon.setImageBitmap(image);
+		// 设置name
 		tv_goods_name.setText(cursor.getString(nameIndex));
+		// 根据数量，分别显示in stock;out stock
 		int quantity = cursor.getInt(quantityIndex);
 		if (quantity > 0) {
 			tv_goods_quantity.setText("in stock: " + quantity);
 		} else {
 			tv_goods_quantity.setText("out stock");
 		}
+		// 设置价格
 		tv_goods_price.setText("$" + cursor.getDouble(priceIndex));
+		// 设置供应商
 		tv_goods_supplier.setText("Supplied by " + cursor.getString(supplierIndex));
 	}
 }
