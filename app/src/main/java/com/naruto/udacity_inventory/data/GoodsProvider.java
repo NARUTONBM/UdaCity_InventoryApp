@@ -161,7 +161,7 @@ public class GoodsProvider extends ContentProvider {
 		}
 		// 对货物数量进行完整性判断
 		if (values.containsKey(GoodsEntry.COLUMN_GOODS_QUANTITY)) {
-			String quantity = values.getAsString(GoodsEntry.COLUMN_GOODS_NAME);
+			Integer quantity = values.getAsInteger(GoodsEntry.COLUMN_GOODS_QUANTITY);
 			if (quantity == null) {
 				throw new IllegalArgumentException("Goods requires vaild quantity");
 			}

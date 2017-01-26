@@ -2,23 +2,24 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:background="@drawable/local_popup_bg"
               android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/bt_goods_order"
-        style="@style/Base.TextAppearance.AppCompat.Widget.Button"
-        android:layout_width="0dp"
-        android:layout_weight="1"
+    <TextView
+        android:id="@+id/tv_goods_sale"
+        style="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:text="order"/>
+        android:drawableTop="@drawable/img1"
+        android:gravity="center_horizontal"
+        android:text="@string/tv_goods_sale"/>
 
-    <Button
-        android:id="@+id/bt_goods_sale"
-        style="@style/Base.TextAppearance.AppCompat.Widget.Button"
-        android:layout_width="0dp"
-        android:layout_weight="1"
+    <TextView
+        android:id="@+id/tv_goods_order"
+        style="@style/Base.TextAppearance.AppCompat.Subhead"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:text="sale"/>
+        android:drawableTop="@drawable/img2"
+        android:gravity="center_horizontal"
+        android:text="@string/tv_goods_order"/>
 </LinearLayout>

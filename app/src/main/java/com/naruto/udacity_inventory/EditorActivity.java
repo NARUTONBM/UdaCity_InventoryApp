@@ -379,11 +379,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		// cursor为空或者curso少于一行，直接退出当前方法
-		if (cursor == null || cursor.getCount() < 1) {
-			return;
-		}
+		/*
+		 * if (cursor == null || cursor.getCount() < 1) { return; }
+		 */
 
-		if (cursor.moveToFirst()) {
+		if (cursor.moveToNext()) {
 			// 找到列的索引
 			int nameColumnIndex = cursor.getColumnIndex(GoodsEntry.COLUMN_GOODS_NAME);
 			int categoryColumnIndex = cursor.getColumnIndex(GoodsEntry.COLUMN_GOODS_CATEGORY);

@@ -47,4 +47,7 @@
     <string name="editor_update_fail">Update goods failed</string>
     <string name="editor_update_success">Update goods successfully</string>
     <string name="tv_empty_headline">No information of goods</string>
+    <string name="tv_goods_sale">SALE</string>
+    <string name="tv_goods_order">ORDER</string>
+    <string name="ensure_update">ensure</string>
 </resources>
