@@ -9,6 +9,7 @@ package com.naruto.udacity_inventory.data;
  */
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -62,21 +63,27 @@ public class GoodsContract {
 		public static final int CATEGORY_GIFT_CARDS = 14;
 		public static final int CATEGORY_OTHER = 15;
 
-		/**
-		 * 判断当前类别值是否合法
-		 * 
-		 * @param category
-		 *            当前类别值
-		 * @return 判断的结果，true--符合；false--不符合
-		 */
-		public static boolean isVaildCategory(int category) {
-			return category == CATEGORY_ARTS_CRAFTS_SEWING || category == CATEGORY_AUTOMOTIVE_PARTS_ACCESSORIES || category == CATEGORY_BABY
-							|| category == CATEGORY_BEAUTY_PERSONAL_CARE || category == CATEGORY_BOOKS || category == CATEGORY_CDS_VINYL
-							|| category == CATEGORY_CELL_PHONE_ACCESSORIES || category == CATEGORY_CLOTHING_SHOES_JEWELRY
-							|| category == CATEGORY_COLLECTIBLES_FINE_ART || category == CATEGORY_COMPUTERS || category == CATEGORY_COURSES
-							|| category == CATEGORY_CREDIT_PAYMENT_CARDS || category == CATEGORY_DIGITAL_MUSIC || category == CATEGORY_ELECTRONICS
-							|| category == CATEGORY_GIFT_CARDS || category == CATEGORY_OTHER;
-
+		public static void isVaildGoods(ContentValues values) {
+			// 对货物名称进行完整性检查
+			String name = values.getAsString(GoodsEntry.COLUMN_GOODS_NAME);
+			if (name == null) {
+				throw new IllegalArgumentException("Goods requires a name");
+			}
+			// 对货物价格进行完整性检查
+			double price = values.getAsDouble(GoodsEntry.COLUMN_GOODS_PRICE);
+			if (price <= 0) {
+				throw new IllegalArgumentException("Goods requires vaild price");
+			}
+			// 对货物数量进行完整性检查
+			Integer quantity = values.getAsInteger(GoodsEntry.COLUMN_GOODS_QUANTITY);
+			if (quantity < 0) {
+				throw new IllegalArgumentException("Goods requires vaild quantity");
+			}
+			// 对货物供货商进行完整性检查
+			String supplier = values.getAsString(GoodsEntry.COLUMN_GOODS_SUPPLIER);
+			if (supplier == null) {
+				throw new IllegalArgumentException("Goods requires vaild supplier");
+			}
 		}
 	}
 }

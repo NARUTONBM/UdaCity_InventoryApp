@@ -198,8 +198,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 		case R.id.action_save:
 			// 保存货物信息到数据库
 			saveGoods();
-			// 退出当前activity
-			finish();
+
 			return true;
 		// 点击了删除按钮的反馈
 		case R.id.action_delete:
@@ -242,7 +241,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 		String supplier = et_goods_supplier.getText().toString().trim();
 		Bitmap icon = (((BitmapDrawable) ib_goods_icon.getDrawable()).getBitmap());
 		// 对输入的内容进行非空校验
-		if (mCurrentGoodsUri == null && name.isEmpty() && category.isEmpty() && price.isEmpty() && quantity.isEmpty() && supplier.isEmpty()) {
+		if (name.isEmpty() || category.isEmpty() || price.isEmpty() || quantity.isEmpty() || supplier.isEmpty()) {
+			Toast.makeText(this, "请检查是否有未填写的内容", Toast.LENGTH_SHORT).show();
 			return;
 		}
 		// 创建一个ContentValues对象
@@ -265,6 +265,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 				Toast.makeText(this, R.string.editor_insert_fail, Toast.LENGTH_SHORT).show();
 			} else {
 				Toast.makeText(this, R.string.editor_insert_success, Toast.LENGTH_SHORT).show();
+				// 退出当前activity
+				finish();
 			}
 		} else {
 			int rowUpdated = getContentResolver().update(mCurrentGoodsUri, values, null, null);
@@ -272,6 +274,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 				Toast.makeText(this, R.string.editor_update_fail, Toast.LENGTH_SHORT).show();
 			} else {
 				Toast.makeText(this, R.string.editor_update_success, Toast.LENGTH_SHORT).show();
+				// 退出当前activity
+				finish();
 			}
 		}
 	}

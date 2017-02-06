@@ -91,26 +91,8 @@ public class GoodsProvider extends ContentProvider {
 	}
 
 	private Uri insertGoods(Uri uri, ContentValues values) {
-		// 对货物名称进行完整性检查
-		String name = values.getAsString(GoodsEntry.COLUMN_GOODS_NAME);
-		if (name == null) {
-			throw new IllegalArgumentException("Goods requires a name");
-		}
-		// 对货物价格进行完整性检查
-		double price = values.getAsDouble(GoodsEntry.COLUMN_GOODS_PRICE);
-		if (price <= 0) {
-			throw new IllegalArgumentException("Goods requires vaild price");
-		}
-		// 对货物数量进行完整性检查
-		Integer quantity = values.getAsInteger(GoodsEntry.COLUMN_GOODS_QUANTITY);
-		if (quantity < 0) {
-			throw new IllegalArgumentException("Goods requires vaild quantity");
-		}
-		// 对货物供货商进行完整性检查
-		String supplier = values.getAsString(GoodsEntry.COLUMN_GOODS_SUPPLIER);
-		if (supplier == null) {
-			throw new IllegalArgumentException("Goods requires vaild supplier");
-		}
+		// 对货物信息做校验
+		GoodsContract.GoodsEntry.isVaildGoods(values);
 		// 建立数据库连接
 		SQLiteDatabase db = mDbHelper.getWritableDatabase();
 		// 根据传入的值，插入一条新的货物数据

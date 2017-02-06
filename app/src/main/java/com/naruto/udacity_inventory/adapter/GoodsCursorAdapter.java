@@ -14,21 +14,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.ScaleAnimation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,11 +32,7 @@ import com.naruto.udacity_inventory.EditorActivity;
 import com.naruto.udacity_inventory.R;
 import com.naruto.udacity_inventory.data.GoodsContract.GoodsEntry;
 import com.naruto.udacity_inventory.utils.DbBitmapUtil;
-
-import static com.naruto.udacity_inventory.R.id.bt_cancel_order;
-import static com.naruto.udacity_inventory.R.id.bt_cancel_update;
-import static com.naruto.udacity_inventory.R.id.bt_ensure_order;
-import static com.naruto.udacity_inventory.R.id.bt_ensure_update;
+import com.naruto.udacity_inventory.utils.PopularViewUtil;
 
 public class GoodsCursorAdapter extends CursorAdapter implements View.OnClickListener {
 
@@ -54,6 +45,8 @@ public class GoodsCursorAdapter extends CursorAdapter implements View.OnClickLis
 	private TextView mTv_goods_quantity;
 	private int mRowId;
 	private String mSupplier;
+	private Button bt_ensure_order;
+	private String mName;
 
 	/**
 	 * 构造函数
@@ -116,7 +109,8 @@ public class GoodsCursorAdapter extends CursorAdapter implements View.OnClickLis
 		Bitmap image = DbBitmapUtil.getImage(cursor.getBlob(iconIndex));
 		iv_goods_icon.setImageBitmap(image);
 		// 设置name
-		tv_goods_name.setText(cursor.getString(nameIndex));
+		mName = cursor.getString(nameIndex);
+		tv_goods_name.setText(mName);
 		// 根据数量，分别显示in stock;out stock
 		mQuantity = cursor.getInt(quantityIndex);
 		if (mQuantity > 0) {
@@ -154,28 +148,7 @@ public class GoodsCursorAdapter extends CursorAdapter implements View.OnClickLis
 				tv_goods_sale.setOnClickListener(GoodsCursorAdapter.this);
 				tv_goods_order.setOnClickListener(GoodsCursorAdapter.this);
 
-				// 透明动画
-				AlphaAnimation alphaAnimation = new AlphaAnimation(0, 1);
-				alphaAnimation.setDuration(500);
-				alphaAnimation.setFillAfter(true);
-				// 缩放动画
-				ScaleAnimation scaleAnimation = new ScaleAnimation(0, 1, 0, 1, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-				scaleAnimation.setDuration(500);
-				scaleAnimation.setFillAfter(true);
-				// 动画集合set--设置为true表示公用同一个插补器，也就是说两个动画的运动模式是一样
-				AnimationSet animationSet = new AnimationSet(true);
-				animationSet.addAnimation(alphaAnimation);
-				animationSet.addAnimation(scaleAnimation);
-
-				// 1.创建窗体对象，指定宽高
-				mPopupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
-				// 2.设置一个透明背景
-				mPopupWindow.setBackgroundDrawable(new ColorDrawable());
-				// 3.指定窗体位置
-				mPopupWindow.showAsDropDown(view, 180, -(view.getHeight() + 20));
-
-				// 启动动画
-				popupView.startAnimation(animationSet);
+				mPopupWindow = PopularViewUtil.setPopupView(view, popupView);
 
 				return true;
 			}
@@ -223,7 +196,7 @@ public class GoodsCursorAdapter extends CursorAdapter implements View.OnClickLis
 		Button bt_remove = (Button) view.findViewById(R.id.bt_remove);
 		TextView tv_goods_order_supplier = (TextView) view.findViewById(R.id.tv_goods_order_supplier);
 		Button bt_cancel_order = (Button) view.findViewById(R.id.bt_cancel_order);
-		Button bt_ensure_order = (Button) view.findViewById(R.id.bt_ensure_order);
+		bt_ensure_order = (Button) view.findViewById(R.id.bt_ensure_order);
 		// 设置对话框标题
 		tv_goods_order_title.setText("Order more");
 		tv_goods_order_supplier.setText("Order from " + mSupplier);
@@ -265,23 +238,23 @@ public class GoodsCursorAdapter extends CursorAdapter implements View.OnClickLis
 
 			break;
 
-		case bt_cancel_update:
+		case R.id.bt_cancel_update:
 			mDialog.dismiss();
 
 			break;
 
-		case bt_ensure_update:
-			updateQuantityDb(false);
+		case R.id.bt_ensure_update:
+			updateQuantityDb();
 
 			break;
 
-		case bt_cancel_order:
+		case R.id.bt_cancel_order:
 			mDialog.dismiss();
 
 			break;
 
-		case bt_ensure_order:
-			updateQuantityDb(true);
+		case R.id.bt_ensure_order:
+			orderMoreGoods(bt_ensure_order);
 
 			break;
 
@@ -297,13 +270,13 @@ public class GoodsCursorAdapter extends CursorAdapter implements View.OnClickLis
 		}
 	}
 
-	private void updateQuantityDb(boolean isAdd) {
+	private void updateQuantityDb() {
 		mNum = Integer.parseInt(et_input.getText().toString());
-		int newquantity;
-		if (isAdd) {
-			newquantity = mQuantity + mNum;
-		} else {
+		int newquantity = 0;
+		if (mQuantity > mNum) {
 			newquantity = mQuantity - mNum;
+		} else {
+			Toast.makeText(mContext, "请注意售出数量不能大于现有数量", Toast.LENGTH_SHORT).show();
 		}
 		mTv_goods_quantity.setText("" + newquantity);
 		ContentValues values = new ContentValues();
@@ -311,17 +284,28 @@ public class GoodsCursorAdapter extends CursorAdapter implements View.OnClickLis
 		Uri currentUri = ContentUris.withAppendedId(GoodsEntry.CONTENT_URI, mRowId);
 		int rowUpdated = mContext.getContentResolver().update(currentUri, values, null, null);
 		if (rowUpdated == 0) {
-			if (isAdd) {
-				Toast.makeText(mContext, "Order more failed", Toast.LENGTH_SHORT).show();
-			} else {
-				Toast.makeText(mContext, "Update quantity failed", Toast.LENGTH_SHORT).show();
-			}
+			Toast.makeText(mContext, "Update quantity failed", Toast.LENGTH_SHORT).show();
 		} else {
-			if (isAdd) {
-				Toast.makeText(mContext, "Order more successfully", Toast.LENGTH_SHORT).show();
-			} else {
-				Toast.makeText(mContext, "Update quantity successfully", Toast.LENGTH_SHORT).show();
-			}
+			Toast.makeText(mContext, "Update quantity successfully", Toast.LENGTH_SHORT).show();
+		}
+
+		mDialog.dismiss();
+	}
+
+	private void orderMoreGoods(View view) {
+		mNum = Integer.parseInt(et_input.getText().toString());
+
+		InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+		Intent intent = new Intent(Intent.ACTION_SEND);
+		intent.setType("message/rfc822");
+		intent.putExtra(Intent.EXTRA_EMAIL, new String[] {"supplier@gmail.com"});
+		intent.putExtra(Intent.EXTRA_SUBJECT, "We want to order " + mNum + " more " + mName + " !");
+		try {
+			mContext.startActivity(Intent.createChooser(intent, "Send mail..."));
+		} catch (android.content.ActivityNotFoundException ex) {
+			Toast.makeText(mContext, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
 		}
 
 		mDialog.dismiss();
