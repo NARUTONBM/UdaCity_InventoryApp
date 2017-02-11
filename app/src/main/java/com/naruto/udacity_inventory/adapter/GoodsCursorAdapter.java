@@ -98,7 +98,7 @@ public class GoodsCursorAdapter extends CursorAdapter implements View.OnClickLis
 		TextView tv_goods_supplier = (TextView) view.findViewById(R.id.tv_goods_supplier);
 		// 得到需要的列的索引
 		int idIndex = cursor.getColumnIndex(GoodsEntry._ID);
-		mRowId = cursor.getInt(idIndex);
+		final int rowId = cursor.getInt(idIndex);
 		int iconIndex = cursor.getColumnIndex(GoodsEntry.COLUMN_GOODS_ICON);
 		int nameIndex = cursor.getColumnIndex(GoodsEntry.COLUMN_GOODS_NAME);
 		int quantityIndex = cursor.getColumnIndex(GoodsEntry.COLUMN_GOODS_QUANTITY);
@@ -112,9 +112,9 @@ public class GoodsCursorAdapter extends CursorAdapter implements View.OnClickLis
 		mName = cursor.getString(nameIndex);
 		tv_goods_name.setText(mName);
 		// 根据数量，分别显示in stock;out stock
-		mQuantity = cursor.getInt(quantityIndex);
-		if (mQuantity > 0) {
-			mTv_goods_quantity.setText("in stock: " + mQuantity);
+		final int quantity = cursor.getInt(quantityIndex);
+		if (quantity > 0) {
+			mTv_goods_quantity.setText("in stock: " + quantity);
 		} else {
 			mTv_goods_quantity.setText("out stock");
 		}
@@ -142,6 +142,8 @@ public class GoodsCursorAdapter extends CursorAdapter implements View.OnClickLis
 
 				View popupView = View.inflate(mContext, R.layout.item_list_goods_expend, null);
 
+				mRowId = rowId;
+				mQuantity = quantity;
 				TextView tv_goods_sale = (TextView) popupView.findViewById(R.id.tv_goods_sale);
 				TextView tv_goods_order = (TextView) popupView.findViewById(R.id.tv_goods_order);
 
